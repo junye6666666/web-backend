@@ -1,19 +1,25 @@
-
 server:
   port: 8080
 
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    # 数据库连接地址，请确保数据库名 ship_management 正确
     url: jdbc:mysql://localhost:3306/ship_management?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
-    username: root  # ??????????
-    password: 123456 # ??????????
+    username: root
+    password: 123456
 
 mybatis:
-  configuration:
-    map-underscore-to-camel-case: true # ????????(user_pic -> userPic)
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # ?????SQL
+  # ✅✅✅ 核心修复点：告诉 MyBatis 去哪里找 XML 文件
+  # "classpath:com/example/shipmanagement/**/*.xml" 意思是在该包及其子目录下递归查找所有 .xml 文件
+  mapper-locations: classpath:com/example/shipmanagement/**/*.xml
 
-# ???JWT??
+  configuration:
+    # 开启驼峰命名自动转换 (数据库 user_pic -> Java userPic)
+    map-underscore-to-camel-case: true
+    # 在控制台打印 SQL 语句，方便调试
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# JWT 密钥配置
 jwt:
-  secret: ship_secret_key_2025 # ???????????
+  secret: ship_secret_key_2025
