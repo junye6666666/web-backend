@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.shipmanagement.mapper.ShipMapper">
+
+    <select id="list" resultType="com.example.shipmanagement.pojo.Ship">
+        SELECT s.*, c.category_name
+        FROM ships s
+        LEFT JOIN ship_category c ON s.category_id = c.id
+        <where>
+            <if test="name != null and name != ''">
+                AND s.name LIKE concat('%', #{name}, '%')
+            </if>
+            <if test="categoryId != null">
+                AND s.category_id = #{categoryId}
+            </if>
+            <if test="state != null and state != ''">
+                AND s.state = #{state}
+            </if>
+        </where>
+        ORDER BY s.update_time DESC
+    </select>
+
+    <insert id="add">
+        INSERT INTO ships(name, category_id, manufacturer, imo_num, state, image_url, create_time, update_time)
+        VALUES (#{name}, #{categoryId}, #{manufacturer}, #{imoNum}, #{state}, #{imageUrl}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update">
+        UPDATE ships SET
+                         name = #{name},
+                         category_id = #{categoryId},
+                         manufacturer = #{manufacturer},
+                         imo_num = #{imoNum},
+                         state = #{state},
+                         image_url = #{imageUrl},
+                         update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateState">
+        UPDATE ships SET state = #{state}, update_time = now() WHERE id = #{id}
+    </update>
+
+    <select id="findById" resultType="com.example.shipmanagement.pojo.Ship">
+        SELECT * FROM ships WHERE id = #{id}
+    </select>
+
+    <delete id="delete">
+        DELETE FROM ships WHERE id = #{id}
+    </delete>
+
+</mapper>
