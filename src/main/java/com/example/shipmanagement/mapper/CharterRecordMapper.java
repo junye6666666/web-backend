@@ -32,5 +32,6 @@ public interface CharterRecordMapper {
             "</where>" +
             "ORDER BY c.charter_time DESC" +
             "</script>")
-    List<CharterRecord> list(Integer userId, String status);
+    // ✅ 修复点：加上 @Param 注解，确保 MyBatis 能准确找到参数
+    List<CharterRecord> list(@Param("userId") Integer userId, @Param("status") String status);
 }
