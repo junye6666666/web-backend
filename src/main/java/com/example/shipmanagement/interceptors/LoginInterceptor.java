@@ -26,18 +26,18 @@ public class LoginInterceptor implements HandlerInterceptor {
         // 2. 获取并处理 Token
         String token = request.getHeader("Authorization");
         try {
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7);
+//            if (token != null && token.startsWith("Bearer ")) {
+//                token = token.substring(7);
 
                 // 3. ✅ 调用对象方法 (此时 jwtUtil 不会是 null 了)
                 Map<String, Object> claims = jwtUtil.parseToken(token);
 
                 ThreadLocalUtil.set(claims);
                 return true;
-            } else {
-                response.setStatus(401);
-                return false;
-            }
+//            } else {
+//                response.setStatus(401);
+//                return false;
+//            }
         } catch (Exception e) {
             // 如果 jwtUtil 注入失败，这里会捕获空指针异常，导致你看到的“登录过期”
             // 现在的写法修复了注入问题，就不会报错了
