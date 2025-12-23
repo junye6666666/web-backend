@@ -1,16 +1,11 @@
-package com.example.shipmanagement.service.impl; // ✅ 注意这里加了 .impl
+package com.example.shipmanagement.service.impl;
 
 import com.example.shipmanagement.mapper.CharterRecordMapper;
 import com.example.shipmanagement.mapper.ShipMapper;
 import com.example.shipmanagement.pojo.CharterRecord;
-import com.example.shipmanagement.pojo.PageBean;
-import com.example.shipmanagement.pojo.Ship;
 import com.example.shipmanagement.utils.ThreadLocalUtil;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -24,42 +19,42 @@ public class CharterServiceImpl {
     @Autowired
     private ShipMapper shipMapper;
 
-    @Transactional
+    // 1. 租船
     public void charterShip(Integer shipId) {
-        Ship ship = shipMapper.findById(shipId);
-        if (ship == null) throw new RuntimeException("船舶不存在");
-        if (!"Available".equals(ship.getState())) {
-            throw new RuntimeException("该船舶已被租用或维修中");
-        }
-
-        shipMapper.updateState(shipId, "Chartered");
-
+        // 1. 获取当前登录用户 ID
         Map<String, Object> map = ThreadLocalUtil.get();
         Integer userId = (Integer) map.get("id");
 
+        // 2. 生成租赁记录
         CharterRecord record = new CharterRecord();
         record.setShipId(shipId);
         record.setUserId(userId);
-
         charterRecordMapper.add(record);
+
+        // 3. 更新船舶状态为 "Chartered" (已租出)
+        // 确保你的 ShipMapper 里有 updateState 方法
+        shipMapper.updateState(shipId, "Chartered");
     }
 
-    @Transactional
+    // 2. 还船
     public void returnShip(Integer recordId) {
-        CharterRecord record = charterRecordMapper.findById(recordId);
-        if (record == null) throw new RuntimeException("记录不存在");
-        if ("Returned".equals(record.getStatus())) {
-            throw new RuntimeException("该订单已归还");
-        }
-
+        // 1. 更新记录状态为 "Returned"
         charterRecordMapper.returnShip(recordId);
-        shipMapper.updateState(record.getShipId(), "Available");
+
+        // 2. 查出这艘船的 ID，把它的状态改回 "Available" (空闲)
+        CharterRecord record = charterRecordMapper.findById(recordId);
+        if (record != null) {
+            shipMapper.updateState(record.getShipId(), "Available");
+        }
     }
 
-    public PageBean<CharterRecord> list(Integer pageNum, Integer pageSize, String status) {
-        PageHelper.startPage(pageNum, pageSize);
-        List<CharterRecord> list = charterRecordMapper.list(null, status);
-        Page<CharterRecord> p = (Page<CharterRecord>) list;
-        return new PageBean<>(p.getTotal(), p.getResult());
+    // 3. ✅✅✅ 之前漏掉的方法：获取列表
+    public List<CharterRecord> list(String status) {
+        // 获取当前用户 ID，只查这个人的记录
+        Map<String, Object> map = ThreadLocalUtil.get();
+        Integer userId = (Integer) map.get("id");
+
+        // 调用 Mapper 查库
+        return charterRecordMapper.list(userId, status);
     }
 }
