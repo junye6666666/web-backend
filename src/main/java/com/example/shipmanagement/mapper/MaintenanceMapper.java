@@ -24,4 +24,7 @@ public interface MaintenanceMapper {
     // 根据ID查记录
     @Select("SELECT * FROM maintenance_record WHERE id = #{id}")
     MaintenanceRecord findById(Integer id);
+    // ✅✅✅ 新增：统计进行中的维修 (Pending)
+    @Select("SELECT COUNT(*) FROM maintenance_record WHERE status = 'Pending'")
+    Integer countPending();
 }

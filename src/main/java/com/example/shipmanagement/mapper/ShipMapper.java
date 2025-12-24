@@ -58,4 +58,11 @@ public interface ShipMapper {
     // 6. 删除
     @Delete("DELETE FROM ships WHERE id = #{id}")
     void delete(Integer id);
+// ✅✅✅ 这里才是放 @Select 统计代码的正确位置！✅✅✅
+
+    @Select("SELECT COUNT(*) FROM ships")
+    Integer countAll();
+
+    @Select("SELECT COUNT(*) FROM ships WHERE state = #{state}")
+    Integer countByState(String state);
 }

@@ -30,4 +30,7 @@ public interface CharterRecordMapper {
             "ORDER BY c.charter_time DESC" +
             "</script>")
     List<CharterRecord> list(@Param("userId") Integer userId, @Param("status") String status);
+    // ✅✅✅ 新增：统计进行中的订单 (Active)
+    @Select("SELECT COUNT(*) FROM charter_record WHERE status = 'Active'")
+    Integer countActive();
 }
