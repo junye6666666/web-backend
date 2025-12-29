@@ -17,7 +17,6 @@ public interface CharterRecordMapper {
     @Select("SELECT * FROM charter_record WHERE id = #{id}")
     CharterRecord findById(Integer id);
 
-    // ✅ 必须有这个 list 方法
     @Select("<script>" +
             "SELECT c.*, s.name as shipName, u.nickname as userName " +
             "FROM charter_record c " +
@@ -30,7 +29,17 @@ public interface CharterRecordMapper {
             "ORDER BY c.charter_time DESC" +
             "</script>")
     List<CharterRecord> list(@Param("userId") Integer userId, @Param("status") String status);
-    // ✅✅✅ 新增：统计进行中的订单 (Active)
+
     @Select("SELECT COUNT(*) FROM charter_record WHERE status = 'Active'")
     Integer countActive();
+
+    // ✅✅✅ 新增：全局搜索 (关联查询船名和用户名)
+    @Select("SELECT c.*, s.name as shipName, u.nickname as userName " +
+            "FROM charter_record c " +
+            "LEFT JOIN ships s ON c.ship_id = s.id " +
+            "LEFT JOIN users u ON c.user_id = u.id " +
+            "WHERE s.name LIKE concat('%', #{keyword}, '%') " +
+            "OR u.nickname LIKE concat('%', #{keyword}, '%') " +
+            "ORDER BY c.charter_time DESC")
+    List<CharterRecord> search(String keyword);
 }
